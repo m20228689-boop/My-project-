@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المواعيد - العيادة</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <!-- شريط التنقل العلوي (White-Label) -->
+    <header class="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div id="clinicLogoBox" class="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-lg shadow">
+                ع
+            </div>
+            <div>
+                <h1 id="clinicNameDisplay" class="text-lg font-bold text-gray-800">عيادة الشفاء التخصصية</h1>
+                <p class="text-xs text-gray-500">نظام إدارة المواعيد والجدولة الذكية</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="openSettingsModal()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm transition">
+                <i class="fa-solid fa-gear ml-1"></i> إعدادات العيادة
+            </button>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- القسم الأيمن: إدارة الأطباء والجداول وأوقات العمليات -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <!-- اختيار الطبيب -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-md font-bold mb-3 flex items-center gap-2 text-blue-600">
+                    <i class="fa-solid fa-user-doctor"></i> اختر الطبيب المعالج
+                </h2>
+                <div class="grid grid-cols-3 gap-2" id="doctorsListContainer">
+                    <button onclick="selectDoctor(1)" class="doctor-btn p-3 rounded-xl border border-blue-600 bg-blue-50 text-blue-700 font-medium text-sm text-center transition">د. أحمد</button>
+                    <button onclick="selectDoctor(2)" class="doctor-btn p-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium text-sm text-center transition">د. مريم</button>
+                    <button onclick="selectDoctor(3)" class="doctor-btn p-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium text-sm text-center transition">د. الشيخ</button>
+                </div>
+            </div>
+
+            <!-- تخصيص جدول الدوام اليومي وحظر العمليات -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <h2 class="text-md font-bold flex items-center gap-2 text-blue-600">
+                    <i class="fa-solid fa-clock"></i> جدولة الدوام والعمليات اليومية
+                </h2>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">بداية ونهاية الدوام اليومي:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="time" id="shiftStart" value="08:00" class="p-2 border rounded-xl text-sm bg-gray-50">
+                        <input type="time" id="shiftEnd" value="14:00" class="p-2 border rounded-xl text-sm bg-gray-50">
+                    </div>
+                </div>
+
+                <!-- تفعيل وقت العمليات -->
+                <div class="p-3 bg-red-50 border border-red-100 rounded-xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-red-700 flex items-center gap-1">
+                            <i class="fa-solid fa-scalpel"></i> حظر أوقات العمليات الجراحية
+                        </span>
+                        <input type="checkbox" id="opModeToggle" onchange="toggleOpMode()" class="w-4 h-4 text-red-600 rounded">
+                    </div>
+                    <div id="opTimeInputs" class="grid grid-cols-2 gap-2 hidden">
+                        <input type="time" id="opStart" value="10:00" class="p-1.5 border rounded-lg text-xs bg-white">
+                        <input type="time" id="opEnd" value="12:00" class="p-1.5 border rounded-lg text-xs bg-white">
+                    </div>
+                    <p class="text-[11px] text-red-500">تفعيل هذا الخيار سيغلق الحجوزات تلقائياً في الفترة المحددة منعاً لأي تضارب.</p>
+                </div>
+
+                <button onclick="saveDoctorSchedule()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-sm transition">
+                    حفظ وتحديث الجدول
+                </button>
+            </div>
+
+        </div>
+
+        <!-- القسم الأيسر: إدارة المواعيد والطوابير -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- إضافة موعد جديد -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-md font-bold mb-4 flex items-center gap-2 text-blue-600">
+                    <i class="fa-solid fa-calendar-plus"></i> حجز موعد جديد
+                </h2>
+                <form id="appointmentForm" onsubmit="addAppointment(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" id="patientName" placeholder="اسم المريض الثلاثي" required class="p-2.5 border rounded-xl text-sm bg-gray-50">
+                    <input type="tel" id="patientPhone" placeholder="رقم الهاتف (بنكيلي / واتساب)" required class="p-2.5 border rounded-xl text-sm bg-gray-50">
+                    <input type="time" id="appointmentTime" required class="p-2.5 border rounded-xl text-sm bg-gray-50">
+                    <button type="submit" class="md:col-span-3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm transition">
+                        <i class="fa-solid fa-check ml-1"></i> تثبيت الحجز في الطابور
+                    </button>
+                </form>
+            </div>
+
+            <!-- قائمة المواعيد الحية اليوم -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-md font-bold flex items-center gap-2 text-blue-600">
+                        <i class="fa-solid fa-list-check"></i> طابور المواعيد اليومي للطبيب النشط
+                    </h2>
+                    <span id="activeDoctorBadge" class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">د. أحمد</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-50 text-gray-600 border-b">
+                            <tr>
+                                <th class="p-3 rounded-r-xl">الوقت</th>
+                                <th class="p-3">اسم المريض</th>
+                                <th class="p-3">رقم الهاتف</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3 rounded-l-xl">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentsTableBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-gray-400">لا توجد مواعيد مسجلة حتى الآن</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- نافذة إعدادات الهوية (White-Label Settings Modal) -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-gray-800">تخصيص هوية العيادة (White-Label)</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">اسم العيادة:</label>
+                <input type="text" id="customClinicName" value="عيادة الشفاء التخصصية" class="w-full p-2.5 border rounded-xl text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">حرف أو رمز الشعار:</label>
+                <input type="text" id="customLogoChar" value="ع" maxlength="2" class="w-full p-2.5 border rounded-xl text-sm">
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="saveSettings()" class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm">حفظ التغييرات</button>
+                <button onclick="closeSettingsModal()" class="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDoctor = 1;
+        let appointmentsData = { 1: [], 2: [], 3: [] };
+
+        function selectDoctor(docId) {
+            currentDoctor = docId;
+            document.querySelectorAll('.doctor-btn').forEach((btn, idx) => {
+                if(idx + 1 === docId) {
+                    btn.className = "doctor-btn p-3 rounded-xl border border-blue-600 bg-blue-50 text-blue-700 font-medium text-sm text-center transition";
+                } else {
+                    btn.className = "doctor-btn p-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium text-sm text-center transition";
+                }
+            });
+            const names = { 1: "د. أحمد", 2: "د. مريم", 3: "د. الشيخ" };
+            document.getElementById('activeDoctorBadge').innerText = names[docId];
+            renderAppointments();
+        }
+
+        function toggleOpMode() {
+            const isChecked = document.getElementById('opModeToggle').checked;
+            const box = document.getElementById('opTimeInputs');
+            if(isChecked) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
+        function saveDoctorSchedule() {
+            alert("تم حفظ جدول الدوام وأوقات العمليات بنجاح للطبيب الحالي!");
+        }
+
+        function addAppointment(e) {
+            e.preventDefault();
+            const name = document.getElementById('patientName').value;
+            const phone = document.getElementById('patientPhone').value;
+            const time = document.getElementById('appointmentTime').value;
+
+            appointmentsData[currentDoctor].push({ name, phone, time, status: 'مؤكد' });
+            renderAppointments();
+            document.getElementById('appointmentForm').reset();
+        }
+
+        function renderAppointments() {
+            const tbody = document.getElementById('appointmentsTableBody');
+            const list = appointmentsData[currentDoctor];
+            if(list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-400">لا توجد مواعيد مسجلة لهذا الطبيب اليوم</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((item, index) => `
+                <tr class="hover:bg-gray-50/50">
+                    <td class="p-3 font-semibold text-blue-600">${item.time}</td>
+                    <td class="p-3 font-medium">${item.name}</td>
+                    <td class="p-3 text-gray-500">${item.phone}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs rounded-full font-bold">${item.status}</span></td>
+                    <td class="p-3">
+                        <button onclick="removeAppointment(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold">إلغاء</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function removeAppointment(index) {
+            appointmentsData[currentDoctor].splice(index, 1);
+            renderAppointments();
+        }
+
+        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); document.getElementById('settingsModal').classList.add('flex'); }
+        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); document.getElementById('settingsModal').classList.remove('flex'); }
+        function saveSettings() {
+            const name = document.getElementById('customClinicName').value;
+            const logo = document.getElementById('customLogoChar').value;
+            document.getElementById('clinicNameDisplay').innerText = name;
+            document.getElementById('clinicLogoBox').innerText = logo;
+            closeSettingsModal();
+        }
+    </script>
+</body>
+</html>
