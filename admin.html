@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="corporate">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة المدير العام | عيادتي SaaS</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 antialiased">
+
+  <!-- شريط علوي -->
+  <header class="navbar bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 px-4 lg:px-8">
+    <div class="navbar-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-sm">
+        <i data-lucide="shield-check" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <span class="font-extrabold text-base lg:text-lg block leading-none">إدارة المنصة (Super Admin)</span>
+        <span class="text-[11px] text-slate-400">تسجيل العيادات والتحكم بالاشتراكات</span>
+      </div>
+    </div>
+    <div class="navbar-end gap-2">
+      <a href="index.html" class="btn btn-sm bg-slate-800 hover:bg-slate-700 text-white border-slate-700 rounded-xl gap-1.5">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <span>صفحة التسجيل</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-8">
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-400">إجمالي العيادات</p>
+          <h2 id="totalClinicsCount" class="text-2xl font-extrabold text-slate-900 mt-1">0</h2>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <i data-lucide="building-2" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-400">العيادات النشطة</p>
+          <h2 id="activeClinicsCount" class="text-2xl font-extrabold text-emerald-600 mt-1">0</h2>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-400">الموقوفة مؤقتاً</p>
+          <h2 id="pausedClinicsCount" class="text-2xl font-extrabold text-amber-600 mt-1">0</h2>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+          <i data-lucide="pause-circle" class="w-5 h-5"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- إضافة عيادة يدوياً بواسطة المدير العام -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i>
+          <span>إضافة عيادة جديدة يدوياً</span>
+        </h3>
+      </div>
+
+      <form onsubmit="addClinicManually(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4 form-control">
+          <label class="label py-1"><span class="label-text text-xs font-bold text-slate-700">اسم العيادة</span></label>
+          <input type="text" id="adminClinicName" required placeholder="مثال: عيادة الشفاء - نواكشوط"
+            class="input input-bordered rounded-xl bg-slate-50 focus:bg-white text-sm" />
+        </div>
+
+        <div class="md:col-span-4 form-control">
+          <label class="label py-1"><span class="label-text text-xs font-bold text-slate-700">صورة الشعار</span></label>
+          <input type="file" id="adminLogoFile" accept="image/*" onchange="handleAdminLogo(event)"
+            class="file-input file-input-bordered file-input-sm h-12 rounded-xl bg-slate-50 w-full text-xs" />
+        </div>
+
+        <div class="md:col-span-2 form-control">
+          <label class="label py-1"><span class="label-text text-xs font-bold text-slate-700">اللون</span></label>
+          <div class="flex items-center justify-center h-12 rounded-xl border border-slate-300 bg-slate-50">
+            <input type="color" id="adminClinicColor" value="#0ea5e9" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <button type="submit" class="btn bg-slate-900 hover:bg-slate-800 text-white border-0 w-full rounded-xl h-12 font-bold text-sm">
+            إضافة العيادة
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- جدول العيادات المسجلة -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-900">قائمة العيادات المسجلة</h3>
+        <span class="text-xs text-slate-400 font-medium">إدارة الوصول والروابط</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table w-full text-right">
+          <thead class="bg-slate-50 text-slate-500 text-xs">
+            <tr>
+              <th>العيادة</th>
+              <th>اللون</th>
+              <th>تاريخ التسجيل</th>
+              <th>الحالة</th>
+              <th class="text-left">الإجراءات والروابط</th>
+            </tr>
+          </thead>
+          <tbody id="clinicsTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let adminUploadedLogo = '';
+
+    function handleAdminLogo(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => { adminUploadedLogo = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+
+    function getClinics() {
+      return JSON.parse(localStorage.getItem('saas_clinics_v2') || '[]');
+    }
+
+    function saveClinics(list) {
+      localStorage.setItem('saas_clinics_v2', JSON.stringify(list));
+      renderClinics();
+    }
+
+    function addClinicManually(e) {
+      e.preventDefault();
+      const name = document.getElementById('adminClinicName').value.trim();
+      const color = document.getElementById('adminClinicColor').value;
+      const id = 'c_' + Date.now().toString(36);
+
+      const list = getClinics();
+      list.push({
+        id,
+        name,
+        color,
+        logo: adminUploadedLogo || '',
+        active: true,
+        createdAt: new Date().toISOString().slice(0, 10)
+      });
+
+      adminUploadedLogo = '';
+      e.target.reset();
+      saveClinics(list);
+    }
+
+    function toggleClinicStatus(id) {
+      const list = getClinics().map(c => c.id === id ? { ...c, active: !c.active } : c);
+      saveClinics(list);
+    }
+
+    function deleteClinic(id) {
+      const list = getClinics().filter(c => c.id !== id);
+      saveClinics(list);
+    }
+
+    function renderClinics() {
+      const list = getClinics();
+      document.getElementById('totalClinicsCount').innerText = list.length;
+      document.getElementById('activeClinicsCount').innerText = list.filter(c => c.active).length;
+      document.getElementById('pausedClinicsCount').innerText = list.filter(c => !c.active).length;
+
+      const tbody = document.getElementById('clinicsTableBody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-slate-400 text-xs">لا توجد عيادات مسجلة بعد. يمكنك تسجيل عيادة من الصفحة الرئيسية أو إضافتها هنا.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map(c => {
+        const avatarHtml = c.logo
+          ? `<img src="${c.logo}" alt="${c.name}" class="w-10 h-10 rounded-xl object-cover border border-slate-200" />`
+          : `<div class="w-10 h-10 rounded-xl text-white flex items-center justify-center font-extrabold text-sm" style="background:${c.color}">${c.name.charAt(0)}</div>`;
+
+        const statusBadge = c.active
+          ? `<span class="badge bg-emerald-50 text-emerald-700 border-emerald-200 font-bold text-xs">نشط</span>`
+          : `<span class="badge bg-amber-50 text-amber-700 border-amber-200 font-bold text-xs">موقوف</span>`;
+
+        return `
+          <tr class="hover:bg-slate-50/70">
+            <td>
+              <div class="flex items-center gap-3">
+                ${avatarHtml}
+                <div>
+                  <p class="font-bold text-slate-900">${c.name}</p>
+                  <p class="text-[11px] text-slate-400 font-mono">${c.id}</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="inline-flex items-center gap-1.5 text-xs font-mono text-slate-600">
+                <span class="w-4 h-4 rounded-full border border-slate-200 inline-block" style="background:${c.color}"></span>
+                ${c.color}
+              </span>
+            </td>
+            <td class="text-xs text-slate-500">${c.createdAt || '-'}</td>
+            <td>${statusBadge}</td>
+            <td class="text-left">
+              <div class="inline-flex flex-wrap items-center gap-2">
+                <a href="clinic.html?id=${encodeURIComponent(c.id)}" class="btn btn-xs bg-slate-900 text-white border-0 rounded-lg">لوحة العيادة</a>
+                <a href="booking.html?id=${encodeURIComponent(c.id)}" class="btn btn-xs btn-outline rounded-lg">صفحة المرضى</a>
+                <button onclick="toggleClinicStatus('${c.id}')" class="btn btn-xs btn-ghost text-indigo-600">${c.active ? 'إيقاف' : 'تفعيل'}</button>
+                <button onclick="deleteClinic('${c.id}')" class="btn btn-xs btn-ghost text-rose-600">حذف</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    renderClinics();
+  </script>
+</body>
+</html>
