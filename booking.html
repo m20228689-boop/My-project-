@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="corporate">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حجز موعد طبي | عيادتي SaaS</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root { --brand: #4f46e5; }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    }
+    .brand-bg { background-color: var(--brand); }
+    .brand-text { color: var(--brand); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 antialiased">
+
+  <!-- رأس صفحة العيادة للمريض -->
+  <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/70 px-4 py-4">
+    <div class="max-w-xl mx-auto flex items-center gap-3.5">
+      <div id="patientBrandBox" class="w-12 h-12 rounded-2xl brand-bg text-white flex items-center justify-center font-extrabold text-xl overflow-hidden shrink-0 shadow-xs">
+        <span id="patientBrandLetter">ع</span>
+        <img id="patientBrandImg" src="" alt="شعار العيادة" class="w-full h-full object-cover hidden" />
+      </div>
+      <div class="min-w-0">
+        <h1 id="patientClinicTitle" class="font-extrabold text-slate-900 text-base sm:text-lg truncate">جاري التحميل...</h1>
+        <p class="text-xs text-slate-500">بوابة حجز المواعيد الإلكترونية</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- نموذج الحجز -->
+  <main class="flex-1 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-xl bg-white rounded-3xl border border-slate-200/80 shadow-xl p-6 sm:p-8 space-y-6">
+
+      <div id="clinicClosedAlert" class="hidden alert alert-warning rounded-2xl text-xs font-bold">
+        <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+        <span>الحجز الإلكتروني متوقف مؤقتاً لهذه العيادة.</span>
+      </div>
+
+      <div class="space-y-1.5 border-b border-slate-100 pb-4">
+        <h2 class="text-xl font-extrabold text-slate-900">احجز موعدك الآن</h2>
+        <p class="text-xs text-slate-500">أدخل بياناتك بدقة وسيتواصل معك فريق الاستقبال لتأكيد الموعد.</p>
+      </div>
+
+      <form id="bookingForm" onsubmit="submitPatientBooking(event)" class="space-y-4">
+        <div class="form-control">
+          <label class="label py-1">
+            <span class="label-text text-xs font-bold text-slate-700">الاسم الكامل</span>
+          </label>
+          <input type="text" id="bName" required placeholder="مثال: عائشة بنت سيدي"
+            class="input input-bordered rounded-xl bg-slate-50 focus:bg-white text-sm" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label py-1">
+              <span class="label-text text-xs font-bold text-slate-700">رقم الهاتف</span>
+            </label>
+            <input type="tel" id="bPhone" required placeholder="مثال: 46123456"
+              class="input input-bordered rounded-xl bg-slate-50 focus:bg-white text-sm" />
+          </div>
+
+          <div class="form-control">
+            <label class="label py-1">
+              <span class="label-text text-xs font-bold text-slate-700">الوقت المفضل</span>
+            </label>
+            <input type="time" id="bTime" required
+              class="input input-bordered rounded-xl bg-slate-50 focus:bg-white text-sm" />
+          </div>
+        </div>
+
+        <button type="submit" id="submitBookingBtn" class="btn brand-bg text-white border-0 w-full rounded-xl h-12 font-extrabold text-sm shadow-md">
+          <span>تأكيد حجز الموعد</span>
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div id="bookingSuccessBox" class="hidden p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
+        <div class="flex items-center gap-2 font-extrabold text-sm">
+          <i data-lucide="badge-check" class="w-5 h-5 text-emerald-600"></i>
+          <span>تم تسجيل طلب حجزك بنجاح</span>
+        </div>
+        <p id="bookingSummaryText" class="text-xs text-emerald-800 leading-relaxed"></p>
+        <button onclick="resetBookingForm()" class="btn btn-xs bg-white text-emerald-800 border-emerald-300 rounded-lg mt-2">
+          حجز موعد آخر
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="text-center py-5 text-xs text-slate-400">
+    <span id="footerClinicName">عيادتي SaaS</span>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    const params = new URLSearchParams(window.location.search);
+    const clinicId = params.get('id') || 'default_clinic';
+
+    function loadClinicForPatient() {
+      const clinics = JSON.parse(localStorage.getItem('saas_clinics_v2') || '[]');
+      const clinic = clinics.find(c => c.id === clinicId) || {
+        id: clinicId,
+        name: 'عيادة نموذجية',
+        color: '#4f46e5',
+        logo: '',
+        active: true
+      };
+
+      document.documentElement.style.setProperty('--brand', clinic.color || '#4f46e5');
+      document.title = `حجز موعد | ${clinic.name}`;
+      document.getElementById('patientClinicTitle').innerText = clinic.name;
+      document.getElementById('footerClinicName').innerText = clinic.name;
+
+      const img = document.getElementById('patientBrandImg');
+      const letter = document.getElementById('patientBrandLetter');
+      if (clinic.logo) {
+        img.src = clinic.logo;
+        img.classList.remove('hidden');
+        letter.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        letter.classList.remove('hidden');
+        letter.innerText = clinic.name.charAt(0) || 'ع';
+      }
+
+      if (clinic.active === false) {
+        document.getElementById('clinicClosedAlert').classList.remove('hidden');
+        document.getElementById('submitBookingBtn').disabled = true;
+      }
+    }
+
+    function submitPatientBooking(e) {
+      e.preventDefault();
+      const name = document.getElementById('bName').value.trim();
+      const phone = document.getElementById('bPhone').value.trim();
+      const time = document.getElementById('bTime').value;
+
+      const key = `saas_apts_${clinicId}`;
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      list.push({ name, phone, time, status: 'في الانتظار', source: 'بوابة المرضى' });
+      localStorage.setItem(key, JSON.stringify(list));
+
+      document.getElementById('bookingForm').classList.add('hidden');
+      document.getElementById('bookingSummaryText').innerText = `المريض: ${name} — الوقت المطلوب: ${time} — الهاتف: ${phone}`;
+      document.getElementById('bookingSuccessBox').classList.remove('hidden');
+    }
+
+    function resetBookingForm() {
+      document.getElementById('bookingForm').reset();
+      document.getElementById('bookingSuccessBox').classList.add('hidden');
+      document.getElementById('bookingForm').classList.remove('hidden');
+    }
+
+    loadClinicForPatient();
+  </script>
+</body>
+</html>
