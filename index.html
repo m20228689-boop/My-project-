@@ -1,428 +1,189 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="corporate">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>نظام إدارة العيادات الذكي | SaaS</title>
+  <title>منصة العيادات الذكية | SaaS</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
-    .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
-    .nav-active { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: radial-gradient(circle at top right, #eef2ff 0%, #f8fafc 45%, #f1f5f9 100%);
+    }
   </style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-indigo-600 selection:text-white">
+<body class="min-h-screen flex flex-col text-slate-800 antialiased">
 
-  <div class="min-h-screen flex flex-col lg:flex-row">
-    
-    <!-- Sidebar (القائمة الجانبية الاحترافية) -->
-    <aside class="w-full lg:w-72 bg-white border-b lg:border-b-0 lg:border-l border-slate-200/80 flex flex-col justify-between z-20">
+  <header class="navbar bg-white/85 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-30 px-4 lg:px-10">
+    <div class="navbar-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm">
+        <i data-lucide="activity" class="w-5 h-5"></i>
+      </div>
       <div>
-        <!-- Brand / White-Label Header -->
-        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div class="flex items-center gap-3.5">
-            <div id="clinicLogoBox" class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-xl shadow-md">
-              ع
-            </div>
-            <div>
-              <h1 id="clinicNameDisplay" class="font-bold text-slate-900 text-base leading-tight">عيادة النخبة التخصصية</h1>
-              <span class="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-0.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> النظام متصل
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="p-4 space-y-1.5">
-          <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">لوحات التحكم</p>
-          
-          <button onclick="switchView('reception')" id="btn-reception" class="nav-btn nav-active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
-            <i class="fa-solid fa-desktop w-5 text-center"></i>
-            <span>مكتب الاستقبال والسكرتارية</span>
-          </button>
-
-          <button onclick="switchView('doctor')" id="btn-doctor" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <i class="fa-solid fa-user-doctor w-5 text-center"></i>
-            <span>شاشة الطبيب (غرفة الفحص)</span>
-          </button>
-
-          <button onclick="switchView('patient')" id="btn-patient" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <i class="fa-solid fa-globe w-5 text-center"></i>
-            <span>بوابة حجز المرضى (معاينة)</span>
-          </button>
-
-          <div class="pt-4 mt-4 border-t border-slate-100">
-            <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">التخصيص والإدارة</p>
-            <button onclick="openSettingsModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-              <i class="fa-solid fa-sliders w-5 text-center"></i>
-              <span>هوية العيادة (White-Label)</span>
-            </button>
-          </div>
-        </nav>
-      </div>
-
-      <!-- Subscription Status Card (تذكير الاشتراك الاحترافي) -->
-      <div class="p-4 m-4 rounded-2xl bg-slate-50 border border-slate-200/60">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs font-bold text-slate-700">حالة الاشتراك</span>
-          <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-md">نشط (Pro)</span>
-        </div>
-        <p class="text-xs text-slate-500 leading-relaxed">متبقي 28 يوماً على التجديد الشهري التلقائي.</p>
-      </div>
-    </aside>
-
-    <!-- Main Workspace -->
-    <main class="flex-1 flex flex-col min-w-0">
-      
-      <!-- Top Glass Header -->
-      <header class="glass-header sticky top-0 z-10 border-b border-slate-200/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 id="pageTitle" class="text-lg font-extrabold text-slate-900">مكتب الاستقبال وإدارة الطابور</h2>
-          <p id="pageSubtitle" class="text-xs text-slate-500">إدارة المواعيد اليومية وتوزيع المرضى على الأطباء</p>
-        </div>
-
-        <!-- Doctor Selector Pills -->
-        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200/60">
-          <button onclick="selectDoctor(1)" class="doc-pill px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition">د. أحمد سالم</button>
-          <button onclick="selectDoctor(2)" class="doc-pill px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">د. مريم بنت محمد</button>
-          <button onclick="selectDoctor(3)" class="doc-pill px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">د. سيدي عبدالله</button>
-        </div>
-      </header>
-
-      <!-- ================= VIEW 1: RECEPTION DASHBOARD ================= -->
-      <section id="view-reception" class="view-section p-6 max-w-6xl w-full mx-auto space-y-6">
-        
-        <!-- KPI Cards (بطاقات الإحصائيات السريعة) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold text-slate-400">إجمالي مواعيد اليوم</p>
-              <h3 id="stat-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</h3>
-            </div>
-            <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-calendar-check"></i>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold text-slate-400">في قاعة الانتظار</p>
-              <h3 id="stat-waiting" class="text-2xl font-extrabold text-amber-600 mt-1">0</h3>
-            </div>
-            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-clock"></i>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-            <div>
-              <p class="text-xs font-bold text-slate-400">تم الكشف بنجاح</p>
-              <h3 id="stat-done" class="text-2xl font-extrabold text-emerald-600 mt-1">0</h3>
-            </div>
-            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-check-double"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Add Appointment Card -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <h3 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-plus-circle text-indigo-600"></i> تسجيل موعد جديد في الطابور
-          </h3>
-          <form onsubmit="addAppointment(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3.5">
-            <input type="text" id="pName" placeholder="الاسم الكامل للمريض" required class="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none transition">
-            <input type="tel" id="pPhone" placeholder="رقم الهاتف (واتساب / بنكيلي)" required class="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none transition">
-            <input type="time" id="pTime" required class="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none transition">
-            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-2.5 px-5 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-check"></i> إضافة للطابور
-            </button>
-          </form>
-        </div>
-
-        <!-- Queue Table -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-sm font-extrabold text-slate-900">قائمة الانتظار الحية</h3>
-            <span id="activeDocLabel" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">د. أحمد سالم</span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-right text-sm">
-              <thead class="bg-slate-50/80 text-slate-500 text-xs uppercase border-b border-slate-100">
-                <tr>
-                  <th class="px-6 py-3.5 font-bold">الوقت</th>
-                  <th class="px-6 py-3.5 font-bold">اسم المريض</th>
-                  <th class="px-6 py-3.5 font-bold">الهاتف</th>
-                  <th class="px-6 py-3.5 font-bold">الحالة</th>
-                  <th class="px-6 py-3.5 font-bold text-left">إجراءات التحكم</th>
-                </tr>
-              </thead>
-              <tbody id="queueTableBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= VIEW 2: DOCTOR WORKSPACE ================= -->
-      <section id="view-doctor" class="view-section hidden p-6 max-w-4xl w-full mx-auto space-y-6">
-        <div class="bg-gradient-to-l from-slate-900 to-slate-800 text-white p-7 rounded-3xl shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <span class="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-emerald-300">المريض الحالي في الغرفة</span>
-            <h3 id="docCurrentPatient" class="text-2xl font-extrabold mt-3">لا يوجد مريض داخل الغرفة حالياً</h3>
-            <p id="docCurrentPhone" class="text-sm text-slate-300 mt-1">قم باستدعاء المريض التالي من القائمة أدناه</p>
-          </div>
-          <button onclick="callNextPatient()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-sm px-6 py-3.5 rounded-xl shadow-md transition flex items-center gap-2 shrink-0">
-            <i class="fa-solid fa-bell"></i> استدعاء المريض التالي
-          </button>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <h4 class="text-sm font-extrabold text-slate-900 mb-4">المرضى المنتظرون دورهم</h4>
-          <div id="doctorWaitingList" class="space-y-3"></div>
-        </div>
-      </section>
-
-      <!-- ================= VIEW 3: PUBLIC PATIENT BOOKING ================= -->
-      <section id="view-patient" class="view-section hidden p-6 max-w-xl w-full mx-auto">
-        <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
-          <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-extrabold mx-auto">
-              <i class="fa-solid fa-hospital-user"></i>
-            </div>
-            <h3 class="text-xl font-extrabold text-slate-900">احجز موعدك إلكترونياً</h3>
-            <p class="text-xs text-slate-500">اختر الطبيب والوقت المناسب دون الحاجة للانتظار الطويل في العيادة</p>
-          </div>
-
-          <form onsubmit="publicBookAppointment(event)" class="space-y-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">اختر الطبيب</label>
-              <select id="pubDoc" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium focus:bg-white focus:border-indigo-600 focus:outline-none">
-                <option value="1">د. أحمد سالم - طب عام</option>
-                <option value="2">د. مريم بنت محمد - طب الأطفال</option>
-                <option value="3">د. سيدي عبدالله - أمراض القلب</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">الاسم الكامل</label>
-              <input type="text" id="pubName" required placeholder="أدخل اسمك الكامل" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">رقم الهاتف (واتساب)</label>
-                <input type="tel" id="pubPhone" required placeholder="مثال: 44123456" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">الوقت المفضل</label>
-                <input type="time" id="pubTime" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-600 focus:outline-none">
-              </div>
-            </div>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition">
-              تأكيد الحجز الآن
-            </button>
-          </form>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- White-Label Settings Modal -->
-  <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-100">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-base font-extrabold text-slate-900">تخصيص هوية العيادة (White-Label)</h3>
-        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">اسم العيادة التجاري</label>
-          <input type="text" id="inputClinicName" value="عيادة النخبة التخصصية" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">حرف أو رمز الشعار</label>
-          <input type="text" id="inputLogoChar" value="ع" maxlength="2" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm">
-        </div>
-      </div>
-      <div class="flex gap-2.5 pt-2">
-        <button onclick="saveSettings()" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-sm transition">حفظ الهوية</button>
-        <button onclick="closeSettingsModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm transition">إلغاء</button>
+        <span class="font-extrabold text-base lg:text-lg text-slate-900 block leading-none">عيادتي SaaS</span>
+        <span class="text-[11px] text-slate-500 font-medium">منصة إدارة العيادات والمواعيد</span>
       </div>
     </div>
-  </div>
+    <div class="navbar-end">
+      <a href="admin.html" class="btn btn-sm md:btn-md bg-slate-900 hover:bg-slate-800 text-white border-0 rounded-xl gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span>المدير العام</span>
+      </a>
+    </div>
+  </header>
 
-  <script>
-    let currentDoctor = 1;
-    const doctorNames = { 1: 'د. أحمد سالم', 2: 'د. مريم بنت محمد', 3: 'د. سيدي عبدالله' };
-    let appointments = {
-      1: [
-        { name: 'محمد ولد المختار', phone: '46201122', time: '09:30', status: 'في الانتظار' },
-        { name: 'فاطمة بنت سالم', phone: '36445566', time: '10:00', status: 'في الانتظار' }
-      ],
-      2: [],
-      3: []
-    };
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="lg:col-span-6 space-y-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/70 text-indigo-700 text-xs font-bold">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+        <span>هوية مستقلة وتجربة متكاملة لكل عيادة</span>
+      </div>
 
-    function switchView(viewName) {
-      document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-      document.getElementById('view-' + viewName).classList.remove('hidden');
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.2]">
+        نظام مواعيد احترافي يعكس <span class="text-indigo-600">فخامة عيادتك</span>
+      </h1>
 
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('nav-active');
-        btn.classList.add('text-slate-600');
-      });
-      const activeBtn = document.getElementById('btn-' + viewName);
-      activeBtn.classList.add('nav-active');
-      activeBtn.classList.remove('text-slate-600');
+      <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+        امنح كل عيادة لوحة تحكم منظمة، شاشة للطبيب، وبوابة حجز مستقلة للمرضى؛ مع شعارها المرفوع وألوانها المتناسقة الخاصة بها.
+      </p>
 
-      const titles = {
-        reception: ['مكتب الاستقبال وإدارة الطابور', 'إدارة المواعيد اليومية وتوزيع المرضى على الأطباء'],
-        doctor: ['غرفة الفحص - شاشة الطبيب', 'متابعة المريض الحالي واستدعاء الحالة التالية'],
-        patient: ['بوابة الحجز الإلكتروني للمرضى', 'الواجهة العامة المخصصة لحجوزات المرضى عن بُعد']
-      };
-      document.getElementById('pageTitle').innerText = titles[viewName][0];
-      document.getElementById('pageSubtitle').innerText = titles[viewName][1];
-      renderAll();
-    }
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+        <div class="bg-white/90 p-4 rounded-2xl border border-slate-200/70 flex items-start gap-3 shadow-xs">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="palette" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">ألوان وشعار خاص</h3>
+            <p class="text-xs text-slate-500 mt-0.5">رفع صورة الشعار واختيار لوحة ألوان متناسقة.</p>
+          </div>
+        </div>
 
-    function selectDoctor(id) {
-      currentDoctor = id;
-      document.querySelectorAll('.doc-pill').forEach((pill, idx) => {
-        if (idx + 1 === id) {
-          pill.className = 'doc-pill px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition';
-        } else {
-          pill.className = 'doc-pill px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition';
-        }
-      });
-      document.getElementById('activeDocLabel').innerText = doctorNames[id];
-      renderAll();
-    }
+        <div class="bg-white/90 p-4 rounded-2xl border border-slate-200/70 flex items-start gap-3 shadow-xs">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">فصل واضح للواجهات</h3>
+            <p class="text-xs text-slate-500 mt-0.5">واجهة للمرضى، أخرى للاستقبال، وشاشة للطبيب.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    function addAppointment(e) {
-      e.preventDefault();
-      const name = document.getElementById('pName').value;
-      const phone = document.getElementById('pPhone').value;
-      const time = document.getElementById('pTime').value;
-      appointments[currentDoctor].push({ name, phone, time, status: 'في الانتظار' });
-      e.target.reset();
-      renderAll();
-    }
+    <div class="lg:col-span-6">
+      <div class="card bg-white border border-slate-200/80 shadow-xl rounded-3xl">
+        <div class="card-body p-6 sm:p-8 space-y-5">
+          <div class="border-b border-slate-100 pb-4">
+            <h2 class="text-xl font-extrabold text-slate-900">تسجيل عيادة جديدة</h2>
+            <p class="text-xs text-slate-500 mt-1">أنشئ مساحة عمل مستقلة لعيادتك الآن</p>
+          </div>
 
-    function publicBookAppointment(e) {
-      e.preventDefault();
-      const docId = parseInt(document.getElementById('pubDoc').value);
-      const name = document.getElementById('pubName').value;
-      const phone = document.getElementById('pubPhone').value;
-      const time = document.getElementById('pubTime').value;
-      appointments[docId].push({ name, phone, time, status: 'في الانتظار' });
-      e.target.reset();
-      alert('تم تأكيد حجزك بنجاح! ستظهر بياناتك الآن في نظام العيادة.');
-      selectDoctor(docId);
-      switchView('reception');
-    }
+          <form onsubmit="handleClinicRegister(event)" class="space-y-4">
+            <div class="form-control">
+              <label class="label py-1">
+                <span class="label-text font-bold text-xs text-slate-700">اسم العيادة</span>
+              </label>
+              <input type="text" id="clinicName" required placeholder="مثال: عيادة الأمل الطبية"
+                class="input input-bordered rounded-xl bg-slate-50 focus:bg-white text-sm" />
+            </div>
 
-    function updateStatus(index, newStatus) {
-      appointments[currentDoctor][index].status = newStatus;
-      renderAll();
-    }
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label py-1">
+                  <span class="label-text font-bold text-xs text-slate-700">صورة شعار العيادة</span>
+                </label>
+                <input type="file" id="logoFile" accept="image/*" onchange="previewLogo(event)"
+                  class="file-input file-input-bordered file-input-sm h-11 rounded-xl bg-slate-50 w-full text-xs" />
+              </div>
 
-    function removeAppointment(index) {
-      appointments[currentDoctor].splice(index, 1);
-      renderAll();
-    }
-
-    function callNextPatient() {
-      const list = appointments[currentDoctor];
-      const inRoomIdx = list.findIndex(p => p.status === 'داخل الغرفة');
-      if (inRoomIdx !== -1) list[inRoomIdx].status = 'مكتمل';
-
-      const nextIdx = list.findIndex(p => p.status === 'في الانتظار');
-      if (nextIdx !== -1) {
-        list[nextIdx].status = 'داخل الغرفة';
-      } else {
-        alert('لا يوجد مرضى في قائمة الانتظار حالياً.');
-      }
-      renderAll();
-    }
-
-    function renderAll() {
-      const list = appointments[currentDoctor];
-      
-      // Stats
-      document.getElementById('stat-total').innerText = list.length;
-      document.getElementById('stat-waiting').innerText = list.filter(p => p.status === 'في الانتظار').length;
-      document.getElementById('stat-done').innerText = list.filter(p => p.status === 'مكتمل').length;
-
-      // Reception Table
-      const tbody = document.getElementById('queueTableBody');
-      if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400 text-xs font-medium">لا توجد مواعيد مسجلة لهذا الطبيب اليوم</td></tr>';
-      } else {
-        tbody.innerHTML = list.map((item, idx) => {
-          let badgeClass = 'bg-amber-50 text-amber-700 border-amber-200/60';
-          if (item.status === 'داخل الغرفة') badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/60';
-          if (item.status === 'مكتمل') badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/60';
-
-          return `
-            <tr class="hover:bg-slate-50/70 transition">
-              <td class="px-6 py-4 font-bold text-slate-900">${item.time}</td>
-              <td class="px-6 py-4 font-bold text-slate-800">${item.name}</td>
-              <td class="px-6 py-4 text-slate-500 font-medium" dir="ltr">${item.phone}</td>
-              <td class="px-6 py-4">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">${item.status}</span>
-              </td>
-              <td class="px-6 py-4 text-left space-x-2 space-x-reverse">
-                <button onclick="updateStatus(${idx}, 'داخل الغرفة')" class="text-xs font-bold text-indigo-600 hover:underline">إدخال</button>
-                <button onclick="updateStatus(${idx}, 'مكتمل')" class="text-xs font-bold text-emerald-600 hover:underline">إنهاء</button>
-                <button onclick="removeAppointment(${idx})" class="text-xs font-bold text-rose-500 hover:underline">حذف</button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      // Doctor Workspace
-      const activePatient = list.find(p => p.status === 'داخل الغرفة');
-      document.getElementById('docCurrentPatient').innerText = activePatient ? activePatient.name : 'لا يوجد مريض داخل الغرفة حالياً';
-      document.getElementById('docCurrentPhone').innerText = activePatient ? `رقم الهاتف: ${activePatient.phone} | الموعد: ${activePatient.time}` : 'اضغط على زر الاستدعاء لإدخال المريض التالي';
-
-      const waitingList = list.filter(p => p.status === 'في الانتظار');
-      const docWaitEl = document.getElementById('doctorWaitingList');
-      if (waitingList.length === 0) {
-        docWaitEl.innerHTML = '<p class="text-xs text-slate-400">قائمة الانتظار فارغة.</p>';
-      } else {
-        docWaitEl.innerHTML = waitingList.map((p, i) => `
-          <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/60">
-            <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-xs font-extrabold flex items-center justify-center">${i + 1}</span>
-              <div>
-                <p class="text-sm font-bold text-slate-900">${p.name}</p>
-                <p class="text-xs text-slate-500">${p.phone}</p>
+              <div class="form-control">
+                <label class="label py-1">
+                  <span class="label-text font-bold text-xs text-slate-700">اللون الأساسي للعيادة</span>
+                </label>
+                <div class="flex items-center gap-2 h-11 px-3 rounded-xl border border-slate-300 bg-slate-50">
+                  <input type="color" id="primaryColor" value="#4f46e5" class="w-7 h-7 rounded cursor-pointer border-0 bg-transparent" />
+                  <span class="text-xs text-slate-600 font-medium">اختر لون الهوية</span>
+                </div>
               </div>
             </div>
-            <span class="text-xs font-bold text-slate-600 bg-white px-3 py-1 rounded-lg border border-slate-200/60">${p.time}</span>
-          </div>
-        `).join('');
+
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-dashed border-slate-300">
+              <div id="logoPreviewBox" class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-lg overflow-hidden shrink-0">
+                <span id="logoFallback">ع</span>
+                <img id="logoImgPreview" src="" alt="شعار العيادة" class="w-full h-full object-cover hidden" />
+              </div>
+              <div class="min-w-0">
+                <p id="previewTitle" class="text-sm font-bold text-slate-800 truncate">معاينة هوية العيادة</p>
+                <p class="text-[11px] text-slate-500">يظهر الشعار واللون المحدد في لوحة العيادة وصفحة المرضى</p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 w-full rounded-xl font-bold text-sm h-12 shadow-md">
+              <span>إنشاء العيادة والانتقال للوحة التحكم</span>
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let uploadedLogoDataUrl = '';
+
+    document.getElementById('clinicName').addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      document.getElementById('previewTitle').innerText = val || 'معاينة هوية العيادة';
+      if (!uploadedLogoDataUrl) {
+        document.getElementById('logoFallback').innerText = val ? val.charAt(0) : 'ع';
       }
+    });
+
+    document.getElementById('primaryColor').addEventListener('input', (e) => {
+      if (!uploadedLogoDataUrl) {
+        document.getElementById('logoPreviewBox').style.backgroundColor = e.target.value;
+      }
+    });
+
+    function previewLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedLogoDataUrl = e.target.result;
+        const img = document.getElementById('logoImgPreview');
+        img.src = uploadedLogoDataUrl;
+        img.classList.remove('hidden');
+        document.getElementById('logoFallback').classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
     }
 
-    function openSettingsModal() {
-      document.getElementById('settingsModal').classList.remove('hidden');
-      document.getElementById('settingsModal').classList.add('flex');
-    }
-    function closeSettingsModal() {
-      document.getElementById('settingsModal').classList.add('hidden');
-      document.getElementById('settingsModal').classList.remove('flex');
-    }
-    function saveSettings() {
-      document.getElementById('clinicNameDisplay').innerText = document.getElementById('inputClinicName').value;
-      document.getElementById('clinicLogoBox').innerText = document.getElementById('inputLogoChar').value;
-      closeSettingsModal();
-    }
+    function handleClinicRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('clinicName').value.trim();
+      const color = document.getElementById('primaryColor').value;
+      const id = 'c_' + Date.now().toString(36);
 
-    renderAll();
+      const newClinic = {
+        id,
+        name,
+        color,
+        logo: uploadedLogoDataUrl || '',
+        active: true,
+        createdAt: new Date().toISOString().slice(0, 10)
+      };
+
+      const clinics = JSON.parse(localStorage.getItem('saas_clinics_v2') || '[]');
+      clinics.push(newClinic);
+      localStorage.setItem('saas_clinics_v2', JSON.stringify(clinics));
+
+      window.location.href = `clinic.html?id=${encodeURIComponent(id)}`;
+    }
   </script>
 </body>
 </html>
